@@ -34,6 +34,8 @@ public class ConfigManager {
 
     public static boolean IGNORE_OUTDATED_MATERIALS = false;
 
+    public static boolean FORCE_LOAD_WORLDS = false;
+
     private static YamlConfiguration config;
 
     public static boolean setup() {
@@ -67,6 +69,8 @@ public class ConfigManager {
             TELEPORT_COMMAND = config.getString("TeleportCommandSuggestion", TELEPORT_COMMAND);
 
             IGNORE_OUTDATED_MATERIALS = config.getBoolean("IgnoreOutdatedMaterials", IGNORE_OUTDATED_MATERIALS);
+
+            FORCE_LOAD_WORLDS = config.getBoolean("ForceLoadWorlds", FORCE_LOAD_WORLDS);
 
             if (RESET_UPDATE_INTERVAL < 0) RESET_UPDATE_INTERVAL = 1;
             if (RESET_UPDATE_PERCENTAGE > 100) RESET_UPDATE_PERCENTAGE = 100F;

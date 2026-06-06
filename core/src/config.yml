@@ -36,3 +36,6 @@ TeleportCommandSuggestion: '/tp <x> <y> <z>'
 # If an arena is created in an old version and the plugin has not been updated yet, you
 # can enable this to allow the arena to still load anyway.
 IgnoreOutdatedMaterials: false
+
+# Force load worlds if they are not loaded when the plugin starts
+ForceLoadWorlds: false

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.block.data.BlockData;
 
 import java.io.ByteArrayOutputStream;
@@ -198,7 +199,7 @@ public class ArenaIO {
             byte[] header = Arrays.copyOfRange(readBytes, 0, firstSectionSplit);
             String headerString = new String(header, StandardCharsets.US_ASCII);
 
-            String name = "**BrokenArena**";
+            String name;
             Location corner1 = null;
             Location corner2 = null;
             UUID owner = PlatinumArenas.DEFAULT_OWNER;
@@ -213,6 +214,7 @@ public class ArenaIO {
             }
             if (version >= 3) {
                 arenaMCVersion = PlatinumArenas.getIntVersion(headerString.split(",")[10]);
+                name = headerString.split(",")[1];
 
                 if (arenaMCVersion > currentMCVersion) {
                     PlatinumArenas.INSTANCE.getLogger().warning("Arena \"" + name + "\" was made in a newer version of minecraft!");
@@ -235,12 +237,31 @@ public class ArenaIO {
                 World realWorld = Bukkit.getWorld(world);
 
                 if (realWorld == null) {
-                    PlatinumArenas.INSTANCE.getLogger().warning("Could not locate world \"" + world + "\" for arena \"" + name + "\"! Using default world");
-                    realWorld = Bukkit.getWorlds().get(0);
+                    if (ConfigManager.FORCE_LOAD_WORLDS) {
+                        PlatinumArenas.INSTANCE.getLogger().warning("Could not locate world \"" + world + "\" for arena \"" + name + "\", so force loading it!");
+                        PlatinumArenas.INSTANCE.getLogger().warning("This will be done synchronously, which means this arena will be loaded later on.");
+
+                        String finalName = name;
+                        PlatinumArenas.sync(() -> {
+                                try {
+                                    Bukkit.createWorld(new WorldCreator(world));
+                                } catch (Exception e) {
+                                    PlatinumArenas.INSTANCE.getLogger().severe("Failed to force load world \"" + world + "\"! Skipping arena \"" + finalName + "\"...");
+                                    e.printStackTrace();
+                                }
+                            }).thenAcceptAsync((unused) -> loadArenaLater(file));
+                            return null;
+                    } else {
+                        PlatinumArenas.INSTANCE.getLogger().warning("Could not locate world \"" + world + "\" for arena \"" + name + "\"! Using default world");
+                        realWorld = Bukkit.getWorlds().get(0);
+                    }
+
                 }
 
                 corner1 = new Location(realWorld, x1, y1, z1);
                 corner2 = new Location(realWorld, x2, y2, z2);
+            } else {
+                name = "**BrokenArena**";
             }
 
             if (Arena.arenas.containsKey(name)) {
@@ -479,5 +500,13 @@ public class ArenaIO {
         PlatinumArenas.INSTANCE.ready = true;
 
         return Arena.arenas.values();
+    }
+
+    protected static void loadArenaLater(File file) {
+        Arena arena = loadArena(file);
+        if (arena == null) return;
+        PlatinumArenas.INSTANCE.getLogger().info("Loaded arena \"" + arena.getName() + "\" from file " + file.getName());
+        Arena.arenas.put(arena.getName(), arena);
+        return;
     }
 }

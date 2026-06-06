@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 
 public class PlatinumArenas extends JavaPlugin {
 
@@ -26,6 +27,11 @@ public class PlatinumArenas extends JavaPlugin {
     private IRegionSelection regionSelection;
 
     protected boolean ready;
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+    }
 
     @Override
     public void onEnable() {
@@ -80,6 +86,27 @@ public class PlatinumArenas extends JavaPlugin {
                 }
             }
         }.runTaskAsynchronously(PlatinumArenas.INSTANCE);
+    }
+
+    public static void async(Runnable runnable) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                runnable.run();
+            }
+        }.runTaskAsynchronously(PlatinumArenas.INSTANCE);
+    }
+
+    public static CompletableFuture<Void> sync(Runnable runnable) {
+        CompletableFuture<Void> future = new CompletableFuture();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                runnable.run();
+                future.complete(null);
+            }
+        }.runTask(PlatinumArenas.INSTANCE);
+        return future;
     }
 
     public IRegionSelection getRegionSelection() {
