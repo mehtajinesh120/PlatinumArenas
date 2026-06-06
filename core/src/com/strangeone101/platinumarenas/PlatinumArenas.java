@@ -100,13 +100,13 @@ public class PlatinumArenas extends JavaPlugin {
 
     public static int getIntVersion(String version) {
 
-        if (!version.matches("\\d+\\.\\d+(\\.\\d+)?")) {
+        if (!version.matches("\\d+\\.\\d+(\\.\\d+)?(\\.build\\.\\d+)?.+")) {
             PlatinumArenas.INSTANCE.getLogger().warning("Version not valid! Cannot parse version \"" + version + "\"");
 
-            return 1164; //1.16.4
+            return 1211; //1.21.1
         }
 
-        String[] split = version.split("\\.", 3);
+        String[] split = version.split("\\.", 5);
 
         int major = Integer.parseInt(split[0]);
         int minor = 0;

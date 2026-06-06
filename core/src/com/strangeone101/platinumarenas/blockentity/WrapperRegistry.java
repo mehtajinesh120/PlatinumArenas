@@ -2,8 +2,13 @@ package com.strangeone101.platinumarenas.blockentity;
 
 import com.strangeone101.platinumarenas.PlatinumArenas;
 import com.strangeone101.platinumarenas.Util;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.tag.TagKey;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Material;
+import org.bukkit.Registry;
 import org.bukkit.Tag;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.TileState;
 
 import java.util.ArrayList;
@@ -69,6 +74,16 @@ public class WrapperRegistry {
             List<Material> chests = new ArrayList<>();
             chests.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.BARREL,
                     Material.HOPPER, Material.DROPPER, Material.DISPENSER));
+            if (mcVersion >= 1219) {
+                io.papermc.paper.registry.tag.Tag<BlockType> copperChests = Registry.BLOCK.getTag(TagKey.create(RegistryKey.BLOCK, Key.key("minecraft:copper_chests")));
+                copperChests.forEach(blockTypeTypedKey -> {
+                    Material m = Material.matchMaterial(blockTypeTypedKey.key().asString());
+                    if (m != null) {
+                        chests.add(m);
+                        PlatinumArenas.debug("Added " + m + " to chest wrappers");
+                    }
+                });
+            }
             chests.addAll(Tag.SHULKER_BOXES.getValues());
             register(new ChestWrapper(), chests.toArray(new Material[0]));
             register(new FurnaceWrapper(), Material.FURNACE, Material.SMOKER, Material.BLAST_FURNACE);

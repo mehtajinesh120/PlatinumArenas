@@ -30,14 +30,15 @@ public class SuspiciousSandWrapper implements Wrapper<BrushableBlock, Suspicious
     public SandData read(byte[] bytes) {
         SmartReader in = new SmartReader(bytes);
         SandData data = new SandData();
-        data.stack = ItemStack.deserializeBytes(in.getByteArray());
+        byte[] itemBytes = in.getByteArray();
+        data.stack = itemBytes.length > 0 ? ItemStack.deserializeBytes(in.getByteArray()) : null;
         data.lootTable = in.getString();
         return data;
     }
 
     @Override
     public BrushableBlock place(BrushableBlock baseTileState, SandData cache) {
-        if (cache.lootTable != null) {
+        if (cache.lootTable != null && !cache.lootTable.isEmpty()) {
             baseTileState.setLootTable(Bukkit.getLootTable(NamespacedKey.fromString(cache.lootTable)));
         } else {
             baseTileState.setItem(cache.stack);
@@ -53,7 +54,7 @@ public class SuspiciousSandWrapper implements Wrapper<BrushableBlock, Suspicious
 
     @Override
     public boolean isBlank(BrushableBlock tileState) {
-        return false;
+        return tileState.hasLootTable() || !tileState.getItem().isEmpty();
     }
 
     public static class SandData {
