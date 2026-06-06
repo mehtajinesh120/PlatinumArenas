@@ -49,6 +49,7 @@ public class ResetCommand extends ArenaCommand {
         }*/
 
         boolean silent = false;
+        boolean force = false;
 
         //Check for any "-" arguments and remove them beforehand
         for (Iterator<String> iterator = args.iterator(); iterator.hasNext(); ) {
