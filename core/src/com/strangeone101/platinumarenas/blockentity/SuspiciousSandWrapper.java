@@ -31,7 +31,7 @@ public class SuspiciousSandWrapper implements Wrapper<BrushableBlock, Suspicious
         SmartReader in = new SmartReader(bytes);
         SandData data = new SandData();
         byte[] itemBytes = in.getByteArray();
-        data.stack = itemBytes.length > 0 ? ItemStack.deserializeBytes(in.getByteArray()) : null;
+        data.stack = itemBytes.length > 0 ? ItemStack.deserializeBytes(itemBytes) : null;
         data.lootTable = in.getString();
         return data;
     }

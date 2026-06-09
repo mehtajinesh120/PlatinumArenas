@@ -69,8 +69,9 @@ public class SkullInteraction1_17 implements ISkullInteraction<GameProfile> {
     }
 
     @Override
-    public GameProfile create(UUID uuid, String texture) {
-        GameProfile profile = new GameProfile(uuid, null);
+    public GameProfile create(UUID uuid, String name, String texture) {
+        GameProfile profile = new GameProfile(uuid, name);
+        if (texture == null || texture.isEmpty()) return profile;
 
         JsonElement element = new JsonParser().parse(texture);
         PropertyMap propertyMap = new PropertyMap.Serializer().deserialize(element, null, null);

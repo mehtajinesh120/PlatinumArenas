@@ -22,6 +22,11 @@ public class SmartWriter {
     }
 
     public void writeUUID(UUID uuid) {
+        if (uuid == null) {
+            out.writeLong(0L);
+            out.writeLong(0L);
+            return;
+        }
         out.writeLong(uuid.getMostSignificantBits());
         out.writeLong(uuid.getLeastSignificantBits());
     }

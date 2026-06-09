@@ -16,7 +16,7 @@ public interface ISkullInteraction<T> {
 
     String getTexture(T cache);
 
-    T create(UUID uuid, String texture);
+    T create(UUID uuid, String name, String texture);
 
     boolean isEnabled();
 

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class ArenaIO {
 
@@ -416,11 +417,17 @@ public class ArenaIO {
                             byte[] dataBytes = new byte[dataLength];
                             for (int k = 0; k < dataLength; k++) dataBytes[k] = buffer.get(); //Read it
 
-                            Object cache = wrapper.read(dataBytes); //Convert bytes to object to store in memory
+                            try {
+                                Object cache = wrapper.read(dataBytes); //Convert bytes to object to store in memory
 
-                            for (int index : indexes) {
-                                NBT.put(index, new ImmutablePair<>(wrapper, cache));
+                                for (int index : indexes) {
+                                    NBT.put(index, new ImmutablePair<>(wrapper, cache));
+                                }
+                            } catch (Exception e) {
+                                PlatinumArenas.INSTANCE.getLogger().warning("Failed to read NBT data for wrapper " + wrapper.getClass().getName() + " in arena \"" + name + "\"! This NBT data will be skipped, but the arena will continue to load.");
+                                e.printStackTrace();
                             }
+
                         }
                     }
                 }
@@ -480,8 +487,13 @@ public class ArenaIO {
         Arena.arenas.clear();
         long time = System.currentTimeMillis();
 
+        Stream<File> arenaFiles =
         Arrays.stream(folder.listFiles((f) -> f.getName().toLowerCase().endsWith(".datc") ||
-                f.getName().toLowerCase().endsWith(".dat"))).parallel().forEach((file) -> {
+                f.getName().toLowerCase().endsWith(".dat")));
+        if (!PlatinumArenas.DEBUG) {
+            arenaFiles = arenaFiles.parallel();
+        }
+        arenaFiles.forEach((file) -> {
             try {
                 Arena arena = ArenaIO.loadArena(file);
                 if (arena == null) return;

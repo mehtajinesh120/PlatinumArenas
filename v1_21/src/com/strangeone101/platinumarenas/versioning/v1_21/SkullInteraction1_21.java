@@ -37,6 +37,7 @@ public class SkullInteraction1_21 implements ISkullInteraction<PlayerProfile> {
 
     @Override
     public String getTexture(PlayerProfile cache) {
+        if (cache.getTextures().getSkin() == null) return null;
         String texture = "{\"textures\":{\"SKIN\":{\"url\":\""+ cache.getTextures().getSkin().toString() + "\"}}}";
         String base64 = Base64.getEncoder().encodeToString(texture.getBytes(Charsets.UTF_8));
         String json = "[{\"name\":\"textures\",\"value\":" + base64 + "}]";
@@ -48,8 +49,9 @@ public class SkullInteraction1_21 implements ISkullInteraction<PlayerProfile> {
     }
 
     @Override
-    public PlayerProfile create(UUID uuid, String texture) {
-        PlayerProfile profile = Bukkit.createPlayerProfile(uuid);
+    public PlayerProfile create(UUID uuid, String name, String texture) {
+        PlayerProfile profile = Bukkit.createPlayerProfile(uuid, name);
+        if (texture == null || texture.isEmpty()) return profile;
 
         String decoded = new String(Base64.getDecoder().decode(texture.substring("[{\"name\":\"textures\",\"value\":".length(), texture.length() - "}]".length())));
         // We simply remove the "beginning" and "ending" part of the JSON, so we're left with only the URL. You could use a proper

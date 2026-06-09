@@ -47,6 +47,8 @@ public class SkullWrapper implements Wrapper<Skull, SkullWrapper.ProfilePlusData
         String propertyString = interaction.getTexture(gameProfile);
         out.writeString(propertyString);
 
+        out.writeByteArray(data.persistentData);
+
         return out.toByteArray();
     }
 
@@ -69,15 +71,17 @@ public class SkullWrapper implements Wrapper<Skull, SkullWrapper.ProfilePlusData
         SmartReader buffer = new SmartReader(bytes);
 
         UUID id = buffer.getUUID();
+        if (id.equals(PlatinumArenas.DEFAULT_OWNER)) id = null;
 
         String name = buffer.getString();
 
         String propertyString = buffer.getString();
 
-        Object profile = interaction.create(id, propertyString);
+        Object profile = interaction.create(id, name, propertyString);
 
         ProfilePlusData data = new ProfilePlusData();
         data.profile = profile;
+        if (buffer.remaining() > 0)
         data.persistentData = buffer.getByteArray();
         return data;
     }
@@ -86,7 +90,8 @@ public class SkullWrapper implements Wrapper<Skull, SkullWrapper.ProfilePlusData
     public Skull place(Skull baseTileState, ProfilePlusData cache) {
         try {
             interaction.set(baseTileState, cache.profile);
-            baseTileState.getPersistentDataContainer().readFromBytes(cache.persistentData);
+            if (cache.persistentData.length > 0)
+                baseTileState.getPersistentDataContainer().readFromBytes(cache.persistentData);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,6 +110,6 @@ public class SkullWrapper implements Wrapper<Skull, SkullWrapper.ProfilePlusData
 
     public static class ProfilePlusData {
         public Object profile;
-        public byte[] persistentData;
+        public byte[] persistentData = new byte[0];
     }
 }
