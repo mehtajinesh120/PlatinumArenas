@@ -143,7 +143,15 @@ public class PlatinumArenas extends JavaPlugin {
             minor = Integer.parseInt(split[1]);
 
             if (split.length > 2) {
-                fix = Integer.parseInt(split[2]);
+                // Some server forks (e.g. Leaf) report a Bukkit version like
+                // "26.2.build.117-alpha", where the 3rd segment is the literal
+                // word "build" rather than a numeric patch/fix version. Guard
+                // against that instead of crashing with a NumberFormatException.
+                try {
+                    fix = Integer.parseInt(split[2]);
+                } catch (NumberFormatException ignored) {
+                    fix = 0;
+                }
             }
         }
 
